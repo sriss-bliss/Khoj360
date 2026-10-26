@@ -30,4 +30,44 @@ class Profile(models.Model):
     def __str__(self):
         return self.full_name or self.user.username
 
+
+class VolunteerApplication(models.Model):
+    ROLE_VOLUNTEER = "volunteer"
+    ROLE_DONOR = "donor"
+    ROLE_REPAIR_PROVIDER = "repair_provider"
+    ROLE_CHOICES = [
+        (ROLE_VOLUNTEER, "Medical volunteer"),
+        (ROLE_DONOR, "Blood donor"),
+        (ROLE_REPAIR_PROVIDER, "Repair provider"),
+    ]
+
+    STATUS_PENDING = "pending"
+    STATUS_APPROVED = "approved"
+    STATUS_REJECTED = "rejected"
+    STATUS_CHOICES = [
+        (STATUS_PENDING, "Pending"),
+        (STATUS_APPROVED, "Approved"),
+        (STATUS_REJECTED, "Rejected"),
+    ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    role = models.CharField(max_length=30, choices=ROLE_CHOICES)
+    message = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reviewed_applications",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.get_role_display()} - {self.get_status_display()}"
+
 # Create your models here.
