@@ -70,4 +70,19 @@ class VolunteerApplication(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.get_role_display()} - {self.get_status_display()}"
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.status == self.STATUS_APPROVED:
+            profile, _ = Profile.objects.get_or_create(
+                user=self.user,
+                defaults={"full_name": self.user.get_full_name() or self.user.username},
+            )
+            if self.role == self.ROLE_VOLUNTEER:
+                profile.is_volunteer = True
+            elif self.role == self.ROLE_DONOR:
+                profile.is_donor = True
+            elif self.role == self.ROLE_REPAIR_PROVIDER:
+                profile.is_repair_provider = True
+            profile.save()
+
 # Create your models here.
