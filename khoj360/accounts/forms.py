@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models import Profile
+from .models import Profile, VolunteerApplication
 
 
 class SignupForm(UserCreationForm):
@@ -14,3 +14,15 @@ class SignupForm(UserCreationForm):
     class Meta:
         model = User
         fields = ("username", "full_name", "phone", "area", "blood_group", "password1", "password2")
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ("full_name", "phone", "area", "blood_group")
+
+
+class VolunteerApplicationForm(forms.ModelForm):
+    class Meta:
+        model = VolunteerApplication
+        fields = ("role", "message")
