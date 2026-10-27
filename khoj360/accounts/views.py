@@ -1,7 +1,8 @@
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
-from .forms import SignupForm
+from .forms import SignupForm, VolunteerApplicationForm
 from .models import Profile
 
 
@@ -22,5 +23,19 @@ def signup(request):
     else:
         form = SignupForm()
     return render(request, "accounts/signup.html", {"form": form})
+
+
+@login_required
+def apply_role(request):
+    if request.method == "POST":
+        form = VolunteerApplicationForm(request.POST)
+        if form.is_valid():
+            application = form.save(commit=False)
+            application.user = request.user
+            application.save()
+            return redirect("accounts:application_status")
+    else:
+        form = VolunteerApplicationForm()
+    return render(request, "accounts/apply_role.html", {"form": form})
 
 # Create your views here.
