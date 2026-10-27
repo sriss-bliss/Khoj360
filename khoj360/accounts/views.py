@@ -2,7 +2,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
-from .forms import SignupForm, VolunteerApplicationForm
+from .forms import ProfileForm, SignupForm, VolunteerApplicationForm
 from .models import Profile, VolunteerApplication
 
 
@@ -23,6 +23,23 @@ def signup(request):
     else:
         form = SignupForm()
     return render(request, "accounts/signup.html", {"form": form})
+
+
+@login_required
+def profile(request):
+    profile_obj, _ = Profile.objects.get_or_create(
+        user=request.user,
+        defaults={"full_name": request.user.get_full_name() or request.user.username},
+    )
+    if request.method == "POST":
+        form = ProfileForm(request.POST, instance=profile_obj)
+        if form.is_valid():
+            form.save()
+            return redirect("accounts:profile")
+    else:
+        form = ProfileForm(instance=profile_obj)
+    applications = VolunteerApplication.objects.filter(user=request.user)
+    return render(request, "accounts/profile.html", {"form": form, "applications": applications})
 
 
 @login_required
