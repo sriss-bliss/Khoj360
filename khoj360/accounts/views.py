@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
 from .forms import SignupForm, VolunteerApplicationForm
-from .models import Profile
+from .models import Profile, VolunteerApplication
 
 
 def signup(request):
@@ -37,5 +37,11 @@ def apply_role(request):
     else:
         form = VolunteerApplicationForm()
     return render(request, "accounts/apply_role.html", {"form": form})
+
+
+@login_required
+def application_status(request):
+    applications = VolunteerApplication.objects.filter(user=request.user)
+    return render(request, "accounts/application_status.html", {"applications": applications})
 
 # Create your views here.
